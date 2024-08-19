@@ -16,6 +16,6 @@ func (r *ShortenerRepository) SetLink(FullLink, ShortLink string) (string, error
 	return "", nil
 }
 
-func (r *ShortenerRepository) CheckLinkExists(FullLink string) (string, error) {
-	return "", nil
+func (r *ShortenerRepository) GetLinkIfExist(fullLink string) (shortLink string, isFound bool, err error) {
+	return "", true, nil
 }

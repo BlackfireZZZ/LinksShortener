@@ -1,14 +1,15 @@
 package main
 
 import (
-	"LinksShortener/iternal/handlers"
-	"LinksShortener/iternal/repositories"
-	"LinksShortener/iternal/services"
+	"LinksShortener/internal/handlers"
+	"LinksShortener/internal/repositories"
+	"LinksShortener/internal/services"
 	"context"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/joho/godotenv"
 	"log"
+	"net/http"
 	"os"
 )
 
@@ -31,5 +32,7 @@ func main() {
 	r.Route("/", func(r chi.Router) {
 		r.Post("/", mainHandlers.Shortener.Shortener)
 	})
+	log.Println("Starting server on: ", os.Getenv("SERVER_ADDRESS"))
+	log.Fatal(http.ListenAndServe(os.Getenv("SERVER_ADDRESS"), r)) // Start server
 
 }
