@@ -31,9 +31,7 @@ func main() {
 	mainServices := services.InitServices(&mainRepositories.Shortener)
 	mainHandlers := handlers.InitHandlers(&mainServices.Shortener)
 	r := chi.NewRouter()
-	r.Route("/", func(r chi.Router) {
-		r.Post("/", mainHandlers.Shortener.Shortener)
-	})
+	r.Post("/", mainHandlers.Shortener.Shortener)
 	log.Println("Starting server on: ", os.Getenv("SERVER_ADDRESS"))
 	log.Fatal(http.ListenAndServe(os.Getenv("SERVER_ADDRESS"), r)) // Start server
 
