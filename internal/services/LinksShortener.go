@@ -1,10 +1,13 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"golang.org/x/crypto/blake2b"
+	"net/url"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type ShortenerRepository interface {
@@ -31,7 +34,23 @@ func GenerateShortLink(FullLink string, length int) (string, error) {
 	return fmt.Sprintf("%x", hash.Sum(nil)), err
 }
 
+func isValidURL(str string) bool {
+	u, err := url.Parse(str)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return false
+	}
+
+	if !strings.HasPrefix(u.Scheme, "http") {
+		return false
+	}
+
+	return true
+}
+
 func (s *ShortenerService) SetLink(fullLink string) (string, error) {
+	if !isValidURL(fullLink) {
+		return "", errors.New("invalid URL")
+	}
 	link, exists, err := s.repo.GetLinkIfExist(fullLink)
 	if err != nil {
 		return "", err
