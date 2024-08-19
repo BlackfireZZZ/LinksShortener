@@ -12,7 +12,7 @@ func NewShortenerRepository(db *pgxpool.Pool) *ShortenerRepository {
 	}
 }
 
-func (r *ShortenerRepository) SetLink(FullLink, ShortLink string) (string, error) {
+func (r *ShortenerRepository) SetLink(fullLink, shortLink string) (string, error) {
 	return "", nil
 }
 

@@ -24,6 +24,7 @@ func main() {
 	db, err := pgxpool.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Println(err)
+		log.Fatal("Failed to connect to the database")
 	}
 	defer db.Close()
 	mainRepositories := repositories.InitRepositories(db)

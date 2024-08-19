@@ -3,7 +3,7 @@ package handlers
 import "net/http"
 
 type ShortenerService interface {
-	SetLink(FullLink string) (string, error)
+	SetLink(fullLink string) (string, error)
 }
 
 type ShortenerHandler struct {

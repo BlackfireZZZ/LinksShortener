@@ -11,26 +11,33 @@ import (
 )
 
 type ShortenerRepository interface {
-	SetLink(FullLink, ShortLink string) (string, error)
+	SetLink(fullLink, shortLink string) (string, error)
 	GetLinkIfExist(fullLink string) (shortLink string, isFound bool, err error)
 }
 
 type ShortenerService struct {
-	repo ShortenerRepository
+	repo       ShortenerRepository
+	linkLength int
 }
 
 func NewShortenerService(repo ShortenerRepository) *ShortenerService {
+	linkLengthString := os.Getenv("LINK_LENGTH")
+	linkLength, err := strconv.Atoi(linkLengthString)
+	if err != nil {
+		return nil
+	}
 	return &ShortenerService{
-		repo: repo,
+		repo:       repo,
+		linkLength: linkLength,
 	}
 }
 
-func GenerateShortLink(FullLink string, length int) (string, error) {
+func (s *ShortenerService) generateShortLink(fullLink string, length int) (string, error) {
 	hash, err := blake2b.New(length, nil)
 	if err != nil {
 		return "", err
 	}
-	hash.Write([]byte(FullLink))
+	hash.Write([]byte(fullLink))
 	return fmt.Sprintf("%x", hash.Sum(nil)), err
 }
 
@@ -55,12 +62,7 @@ func (s *ShortenerService) SetLink(fullLink string) (string, error) {
 	if err != nil {
 		return "", err
 	} else if !exists {
-		linkLengthString := os.Getenv("LINK_LENGTH")
-		linkLength, err := strconv.Atoi(linkLengthString)
-		if err != nil {
-			return "", err
-		}
-		shortLink, err := GenerateShortLink(fullLink, linkLength)
+		shortLink, err := s.generateShortLink(fullLink, s.linkLength)
 		if err != nil {
 			return "", err
 		}
