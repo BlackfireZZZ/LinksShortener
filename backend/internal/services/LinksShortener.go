@@ -55,25 +55,25 @@ func isValidURL(str string) bool {
 	return true
 }
 
-func (s *ShortenerService) SetLink(fullLink string) (string, error) {
+func (s *ShortenerService) SetLink(fullLink string) (string, bool, error) {
 	if !isValidURL(fullLink) {
-		return "", errors.New("invalid URL")
+		return "", false, errors.New("invalid URL")
 	}
 	link, exists, err := s.repo.GetShortLinkIfExist(fullLink)
 	if err != nil {
-		return "", err
+		return "", false, err
 	} else if !exists {
 		shortLink, err := s.generateShortLink(fullLink, s.linkLength)
 		if err != nil {
-			return "", err
+			return "", false, err
 		}
 		shortLink, err = s.repo.SetLink(fullLink, shortLink)
 		if err != nil {
-			return "", err
+			return "", false, err
 		}
-		return shortLink, nil
+		return shortLink, false, nil
 	} else {
-		return link, nil
+		return link, true, nil
 	}
 }
 

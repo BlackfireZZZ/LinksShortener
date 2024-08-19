@@ -10,7 +10,7 @@ import (
 )
 
 type ShortenerService interface {
-	SetLink(fullLink string) (string, error)
+	SetLink(fullLink string) (string, bool, error)
 	GetLink(shortLink string) (string, error)
 }
 
@@ -33,7 +33,7 @@ func (s ShortenerHandler) SetLink(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	shortLink, err := s.service.SetLink(linkIn.FullLink)
+	shortLink, existed, err := s.service.SetLink(linkIn.FullLink)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -45,9 +45,12 @@ func (s ShortenerHandler) SetLink(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+	if !existed {
+		w.WriteHeader(http.StatusCreated)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
 	w.Write(response)
-	// TODO make different status codes
 }
 
 func (s ShortenerHandler) GetLink(w http.ResponseWriter, r *http.Request) {
