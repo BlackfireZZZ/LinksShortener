@@ -48,7 +48,6 @@ func (s ShortenerHandler) GetLink(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Println("fullLink: ", fullLink)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fullLink))
 }
