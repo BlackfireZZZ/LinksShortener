@@ -5,8 +5,8 @@ import (
 	_ "LinksShortener/internal/domain"
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
-	"log"
 	"net/http"
+	"os"
 )
 
 type ShortenerService interface {
@@ -16,11 +16,13 @@ type ShortenerService interface {
 
 type ShortenerHandler struct {
 	service ShortenerService
+	domain  string
 }
 
 func NewShortenerHandler(service ShortenerService) *ShortenerHandler {
 	return &ShortenerHandler{
 		service: service,
+		domain:  os.Getenv("DOMAIN"),
 	}
 }
 
@@ -33,21 +35,36 @@ func (s ShortenerHandler) SetLink(w http.ResponseWriter, r *http.Request) {
 	}
 	shortLink, err := s.service.SetLink(linkIn.FullLink)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	log.Println("shortLink: ", shortLink)
-	w.Write([]byte(shortLink))
+	response, err := json.Marshal(&domain.SetLinkResponse{
+		ShortLink: s.domain + "/" + shortLink,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	w.WriteHeader(http.StatusCreated)
+	w.Write(response)
+	// TODO make different status codes
 }
 
 func (s ShortenerHandler) GetLink(w http.ResponseWriter, r *http.Request) {
 	shortLink := chi.URLParam(r, "shortLink")
 	fullLink, err := s.service.GetLink(shortLink)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fullLink))
+	//response, err := json.Marshal(&domain.GetLinkResponse{
+	//	FullLink: fullLink,
+	//})
+	//if err != nil {
+	//	http.Error(w, err.Error(), http.StatusBadRequest)
+	//	return
+	//}
+	//w.WriteHeader(http.StatusOK)
+	//w.Write(response)
+	http.Redirect(w, r, fullLink, http.StatusTemporaryRedirect)
 }

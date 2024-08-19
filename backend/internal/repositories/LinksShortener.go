@@ -4,7 +4,11 @@ import (
 	"LinksShortener/internal/domain"
 	_ "LinksShortener/internal/domain"
 	"context"
+	"database/sql"
+	"errors"
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"log"
 )
 
 type ShortenerRepository struct {
@@ -27,18 +31,10 @@ func (r *ShortenerRepository) SetLink(fullLink, shortLink string) (string, error
 
 func (r *ShortenerRepository) GetShortLinkIfExist(fullLink string) (shortLink string, isFound bool, err error) {
 	linksOut := &domain.LinksOut{}
-	rows, err := r.db.Query(context.Background(), `SELECT full_link, short_link FROM links WHERE full_link = $1`, fullLink)
-	if err != nil {
-		return "", false, err
-	}
-	defer rows.Close()
-
-	if !rows.Next() {
+	err = r.db.QueryRow(context.Background(), `SELECT full_link, short_link FROM links WHERE full_link = $1`, fullLink).Scan(&linksOut.FullLink, &linksOut.ShortLink)
+	if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, sql.ErrNoRows) {
 		return "", false, nil
-	}
-
-	err = rows.Scan(&linksOut.FullLink, &linksOut.ShortLink)
-	if err != nil {
+	} else if err != nil {
 		return "", false, err
 	}
 	shortLink = linksOut.ShortLink
@@ -47,18 +43,11 @@ func (r *ShortenerRepository) GetShortLinkIfExist(fullLink string) (shortLink st
 
 func (r *ShortenerRepository) GetFullLinkIfExist(shortLink string) (fullLink string, isFound bool, err error) {
 	linksOut := &domain.LinksOut{}
-	rows, err := r.db.Query(context.Background(), `SELECT full_link, short_link FROM links WHERE short_link = $1`, shortLink)
-	if err != nil {
-		return "", false, err
-	}
-	defer rows.Close()
-
-	if !rows.Next() {
+	err = r.db.QueryRow(context.Background(), `SELECT full_link, short_link FROM links WHERE short_link = $1`, shortLink).Scan(&linksOut.FullLink, &linksOut.ShortLink)
+	if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, sql.ErrNoRows) {
 		return "", false, nil
-	}
-
-	err = rows.Scan(&linksOut.FullLink, &linksOut.ShortLink)
-	if err != nil {
+	} else if err != nil {
+		log.Println("Repo: ", err)
 		return "", false, err
 	}
 
