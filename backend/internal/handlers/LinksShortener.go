@@ -16,6 +16,6 @@ func NewShortenerHandler(service ShortenerService) *ShortenerHandler {
 	}
 }
 
-func (s ShortenerHandler) Shortener(r http.ResponseWriter, w *http.Request) {
-	return
+func (h ShortenerHandler) Shortener(r http.ResponseWriter, w *http.Request) {
+
 }

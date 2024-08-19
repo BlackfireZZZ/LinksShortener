@@ -5,12 +5,13 @@ import (
 	"LinksShortener/internal/repositories"
 	"LinksShortener/internal/services"
 	"context"
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func init() {
