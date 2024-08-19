@@ -25,7 +25,7 @@ func (r *ShortenerRepository) SetLink(fullLink, shortLink string) (string, error
 	return shortLink, nil
 }
 
-func (r *ShortenerRepository) GetLinkIfExist(fullLink string) (shortLink string, isFound bool, err error) {
+func (r *ShortenerRepository) GetShortLinkIfExist(fullLink string) (shortLink string, isFound bool, err error) {
 	linksOut := &domain.LinksOut{}
 	rows, err := r.db.Query(context.Background(), `SELECT short_link FROM links WHERE full_link = $1`, fullLink)
 	if err != nil {
@@ -44,4 +44,25 @@ func (r *ShortenerRepository) GetLinkIfExist(fullLink string) (shortLink string,
 	}
 	shortLink = linksOut.ShortLink
 	return shortLink, true, nil
+}
+
+func (r *ShortenerRepository) GetFullLinkIfExist(shortLink string) (fullLink string, isFound bool, err error) {
+	linksOut := &domain.LinksOut{}
+	rows, err := r.db.Query(context.Background(), `SELECT full_link FROM links WHERE short_link = $1`, shortLink)
+	if err != nil {
+		return "", false, err
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		return "", false, nil
+	}
+	for rows.Next() {
+		err = rows.Scan(&linksOut)
+		if err != nil {
+			return "", false, err
+		}
+	}
+	fullLink = linksOut.FullLink
+	return fullLink, true, nil
 }

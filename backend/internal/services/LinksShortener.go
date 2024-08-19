@@ -12,7 +12,8 @@ import (
 
 type ShortenerRepository interface {
 	SetLink(fullLink, shortLink string) (string, error)
-	GetLinkIfExist(fullLink string) (shortLink string, isFound bool, err error)
+	GetShortLinkIfExist(fullLink string) (shortLink string, isFound bool, err error)
+	GetFullLinkIfExist(shortLink string) (fullLink string, isFound bool, err error)
 }
 
 type ShortenerService struct {
@@ -58,7 +59,7 @@ func (s *ShortenerService) SetLink(fullLink string) (string, error) {
 	if !isValidURL(fullLink) {
 		return "", errors.New("invalid URL")
 	}
-	link, exists, err := s.repo.GetLinkIfExist(fullLink)
+	link, exists, err := s.repo.GetShortLinkIfExist(fullLink)
 	if err != nil {
 		return "", err
 	} else if !exists {
@@ -73,5 +74,16 @@ func (s *ShortenerService) SetLink(fullLink string) (string, error) {
 		return shortLink, nil
 	} else {
 		return link, nil
+	}
+}
+
+func (s *ShortenerService) GetLink(shortLink string) (string, error) {
+	fullLink, exists, err := s.repo.GetFullLinkIfExist(shortLink)
+	if err != nil {
+		return "", err
+	} else if !exists {
+		return "", errors.New("link not found")
+	} else {
+		return fullLink, nil
 	}
 }
