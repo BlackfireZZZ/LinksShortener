@@ -10,7 +10,7 @@ import (
 )
 
 type ShortenerService interface {
-	SetLink(fullLink string) (string, bool, error)
+	SetLink(fullLink string) (string, bool, error) // returns shortLink, existed, error
 	GetLink(shortLink string) (string, error)
 }
 
