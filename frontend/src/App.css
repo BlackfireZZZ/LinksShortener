@@ -1,0 +1,32 @@
+/* App.css */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: #f0e4d7; /* Пастельный цвет */
+    padding: 30px;
+    border-radius: 15px; /* Скругленные углы */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 40vw; /* Ширина контейнера */
+}
+
+h1 {
+    color: #343a40;
+    text-align: center;
+}
+
+.form-control {
+    width: 100%; /* Делаем поле ввода на всю ширину контейнера */
+}
+
+button {
+    width: 100%;
+}
