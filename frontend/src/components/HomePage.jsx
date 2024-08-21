@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import config from "../config";
 
 const HomePage = () => {
     const [link, setLink] = useState('');
@@ -22,7 +23,7 @@ const HomePage = () => {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:8000', {
+            const response = await axios.post(config.Host_url, {
                 full_link: link,
             });
             setShortLink(response.data.short_link);

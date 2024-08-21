@@ -21,7 +21,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: backend
+    container_name: linksShortener_backend
     ports:
       - "8000:8000"
     volumes:
@@ -34,7 +34,7 @@ services:
     build:
       context: .
       dockerfile: nginx/Dockerfile
-    container_name: nginx
+    container_name: linksShortener_nginx
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     restart: on-failure
