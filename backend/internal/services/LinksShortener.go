@@ -62,19 +62,19 @@ func (s *ShortenerService) SetLink(fullLink string) (string, bool, error) {
 	link, exists, err := s.repo.GetShortLinkIfExist(fullLink)
 	if err != nil {
 		return "", false, err
-	} else if !exists {
-		shortLink, err := s.generateShortLink(fullLink, s.linkLength)
-		if err != nil {
-			return "", false, err
-		}
-		shortLink, err = s.repo.SetLink(fullLink, shortLink)
-		if err != nil {
-			return "", false, err
-		}
-		return shortLink, false, nil
-	} else {
+	} else if exists {
 		return link, true, nil
 	}
+	shortLink, err := s.generateShortLink(fullLink, s.linkLength)
+	if err != nil {
+		return "", false, err
+	}
+	shortLink, err = s.repo.SetLink(fullLink, shortLink)
+	if err != nil {
+		return "", false, err
+	}
+	return shortLink, false, nil
+
 }
 
 func (s *ShortenerService) GetLink(shortLink string) (string, error) {

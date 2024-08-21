@@ -14,6 +14,6 @@ input {
 }
 input[type=button]:hover {
     cursor: pointer;
-    background-color: gray;
+    background-color: rgb(128, 128, 128);
     color: white;
 }

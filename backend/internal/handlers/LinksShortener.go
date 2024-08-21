@@ -60,14 +60,5 @@ func (s ShortenerHandler) GetLink(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	//response, err := json.Marshal(&domain.GetLinkResponse{
-	//	FullLink: fullLink,
-	//})
-	//if err != nil {
-	//	http.Error(w, err.Error(), http.StatusBadRequest)
-	//	return
-	//}
-	//w.WriteHeader(http.StatusOK)
-	//w.Write(response)
 	http.Redirect(w, r, fullLink, http.StatusTemporaryRedirect)
 }
