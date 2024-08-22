@@ -7,6 +7,7 @@ import (
 	"context"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/joho/godotenv"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"net/http"
 	"os"
@@ -33,6 +34,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Post("/", mainHandlers.Shortener.SetLink)
 	r.Get("/{shortLink}", mainHandlers.Shortener.GetLink)
+	r.Get("/metrics", promhttp.Handler().ServeHTTP)
 	log.Println("Starting server on: ", os.Getenv("SERVER_ADDRESS"))
 	log.Fatal(http.ListenAndServe(os.Getenv("SERVER_ADDRESS"), r)) // Start server
 
