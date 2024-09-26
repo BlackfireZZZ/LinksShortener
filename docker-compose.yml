@@ -2,7 +2,7 @@ version: "1"
 services:
   db:
     image: postgres:alpine3.19
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: "PROD"
       POSTGRES_USER: "postgres"
@@ -17,24 +17,27 @@ services:
       - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
   app:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: linksShortener_backend
+    container_name: backend
     ports:
       - "8000:8000"
     volumes:
       - backend_data:/app_data
+    restart: on-failure
     environment:
       env_file: ".env"
     depends_on:
       - db
+
   nginx:
     build:
       context: .
       dockerfile: nginx/Dockerfile
-    container_name: linksShortener_nginx
+    container_name: nginx
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     restart: on-failure
@@ -42,6 +45,7 @@ services:
       - "80:80"
     depends_on:
       - app
+
   migrations:
     build:
       context: .
@@ -51,7 +55,38 @@ services:
         condition: service_healthy
     environment:
       env_file: ".migrations_env"
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    restart: unless-stopped
+    volumes:
+      - 'node_exporter_data:/host:ro,rslave'
+    ports:
+      - 9100:9100
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
 volumes:
+  node_exporter_data:
   db-data:
   backend_data:
     driver: local
+  grafana-storage: { }
+

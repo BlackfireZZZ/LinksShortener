@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"LinksShortener/internal/domain"
 	_ "LinksShortener/internal/domain"
 	"context"
 	"database/sql"
@@ -28,20 +29,21 @@ func (r *ShortenerRepository) SetLink(fullLink, shortLink string) (string, error
 	return shortLink, nil
 }
 
-func (r *ShortenerRepository) GetShortLinkIfExist(fullLink string) (string, bool, error) {
-	var shortLink string
-	err := r.db.QueryRow(context.Background(), `SELECT short_link FROM links WHERE full_link = $1`, fullLink).Scan(&shortLink)
+func (r *ShortenerRepository) GetShortLinkIfExist(fullLink string) (shortLink string, isFound bool, err error) {
+	linksOut := &domain.LinksOut{}
+	err = r.db.QueryRow(context.Background(), `SELECT full_link, short_link FROM links WHERE full_link = $1`, fullLink).Scan(&linksOut.FullLink, &linksOut.ShortLink)
 	if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, sql.ErrNoRows) {
 		return "", false, nil
 	} else if err != nil {
 		return "", false, err
 	}
+	shortLink = linksOut.ShortLink
 	return shortLink, true, nil
 }
 
-func (r *ShortenerRepository) GetFullLinkIfExist(shortLink string) (string, bool, error) {
-	var fullLink string
-	err := r.db.QueryRow(context.Background(), `SELECT full_link FROM links WHERE short_link = $1`, shortLink).Scan(&fullLink)
+func (r *ShortenerRepository) GetFullLinkIfExist(shortLink string) (fullLink string, isFound bool, err error) {
+	linksOut := &domain.LinksOut{}
+	err = r.db.QueryRow(context.Background(), `SELECT full_link, short_link FROM links WHERE short_link = $1`, shortLink).Scan(&linksOut.FullLink, &linksOut.ShortLink)
 	if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, sql.ErrNoRows) {
 		return "", false, nil
 	} else if err != nil {
@@ -49,5 +51,6 @@ func (r *ShortenerRepository) GetFullLinkIfExist(shortLink string) (string, bool
 		return "", false, err
 	}
 
+	fullLink = linksOut.FullLink
 	return fullLink, true, nil
 }
